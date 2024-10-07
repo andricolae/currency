@@ -1,0 +1,15 @@
+body {
+    padding: 10px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, select, button {
+    padding: 8px;
+    width: 25%;
+    box-sizing: border-box;
+}
