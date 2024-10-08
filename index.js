@@ -1,4 +1,4 @@
-const apiKey = 'fb098d1ceb773cca7083cb3c';
+const apiKey = '9394ba5026a86ce9357d1a8f';
 const apiUrl = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/`;
 
 async function fetchExchangeRate(fromCurrency, toCurrency) {
@@ -28,7 +28,7 @@ async function convertCurrency() {
 
     if (navigator.onLine) {
         const exchangeRate = await fetchExchangeRate(fromCurrency, toCurrency);
-        if (exchangRate) {
+        if (exchangeRate) {
             const result = (amount * exchangeRate).toFixed(2);
             document.getElementById('result').innerText = `RESULT: ${result} ${toCurrency} (Exchange rate: 1 ${fromCurrency} = ${exchangeRate} ${toCurrency})`;
             localStorage.setItem('lastRate', JSON.stringify({ fromCurrency, toCurrency, rate: exchangeRate }));
