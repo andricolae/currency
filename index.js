@@ -149,16 +149,14 @@ function convertUsingLocalStorage(fromCurrency, toCurrency, amount) {
 
 async function populateCurrencyDropdowns() {
     try {
-        const response = await fetch('https://v6.exchangerate-api.com/v6/9394ba5026a86ce9357d1a8f/codes/')
+        const response = await fetch(`${apiUrl}RON`);
         if (!response.ok) {
             throw new Error("NO NETWORK RESPONSE");
         }
         const data = await response.json();
 
         if (data.result === "success") {
-
-            const currencies = data.supported_codes;
-            console.log(currencies[1][1]);
+            const currencies = Object.keys(data.conversion_rates);
 
             const fromCurrencyDropdown = document.getElementById('fromCurrency');
             const toCurrencyDropdown = document.getElementById('toCurrency');
@@ -168,13 +166,13 @@ async function populateCurrencyDropdowns() {
 
             currencies.forEach(currency => {
                 const optionFrom = document.createElement('option');
-                optionFrom.value = currency[1];
-                optionFrom.text = currency[1];
+                optionFrom.value = currency;
+                optionFrom.text = currency;
                 fromCurrencyDropdown.appendChild(optionFrom);
 
                 const optionTo = document.createElement('option');
-                optionTo.value = currency[1];
-                optionTo.text = currency[1];
+                optionTo.value = currency;
+                optionTo.text = currency;
                 toCurrencyDropdown.appendChild(optionTo);
             });
         } else {
