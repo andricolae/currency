@@ -20,10 +20,10 @@ async function fetchExchangeRate(fromCurrency, toCurrency) {
     }
 }
 
-function showErrorMessage() {
+function showAmountErrorMessage() {
     document.getElementById('errorAmount').style.display = 'block';
 }
-function hideErrorMessage() {
+function hideAmountErrorMessage() {
     document.getElementById('errorAmount').style.display = 'none';
 }
 function disableButton(disable) {
@@ -36,25 +36,25 @@ document.getElementById('amount').addEventListener('keypress', function(event) {
 
     if (!((charCode >= 48 && charCode <= 57) || charCode === 46)) {
         event.preventDefault();
-        showErrorMessage();
+        showAmountErrorMessage();
         disableButton(true);
     } else {
         if (charCode === 46 && inputValue.includes('.')) {
             event.preventDefault();
-            showErrorMessage();
+            showAmountErrorMessage();
             disableButton(true);
         } else if (inputValue.includes('.')) {
             const decimalPart = inputValue.split('.')[1];
             if (decimalPart && decimalPart.length >= 2) {
                 event.preventDefault();
-                showErrorMessage();
+                showAmountErrorMessage();
                 disableButton(true);
             } else {
-                hideErrorMessage();
+                hideAmountErrorMessage();
                 disableButton(false);
             }
         } else {
-            hideErrorMessage();
+            hideAmountErrorMessage();
             disableButton(false);
         }
     }
@@ -67,15 +67,17 @@ async function convertCurrency() {
     const toCurrency = document.getElementById('toCurrency').value;
 
     if (amount == 0){
-        showErrorMessage();
+        showAmountErrorMessage();
         return;
     } else {
-        hideErrorMessage();
+        hideAmountErrorMessage();
     }
 
     if (!amount || !fromCurrency || !toCurrency) {
-        alert("FIELDS NOT FILLED IN");
+        showAmountErrorMessage();
         return;
+    } else {
+        hideAmountErrorMessage();
     }
 
     if (navigator.onLine) {
@@ -89,7 +91,10 @@ async function convertCurrency() {
             const result = (amount * exchangeRate).toFixed(2);
             document.getElementById('result').innerText = `RESULT: ${result} ${toCurrency} (Exchange rate: 1 ${fromCurrency} = ${exchangeRate} ${toCurrency} on ${sanitizedDateOfCurrency})`;
         } else {
-            alert("ERROR AT FETCH");
+            showFetchErrorMessage();
+            setTimeout(() => {
+                hideFetchErrorMessage();
+            }, 2000);
         }
     }
     else {
@@ -109,25 +114,24 @@ async function convertCurrency() {
     }
 }
 
+function showFetchErrorMessage() {
+    document.getElementById('errorAtFetch').style.display = 'block';
+}
+function hideFetchErrorMessage() {
+    document.getElementById('errorAtFetch').style.display = 'none';
+}
+
 function convertUsingLocalStorage(fromCurrency, toCurrency, amount) {
-    // Retrieve exchange rates from Local Storage
     const usdRates = JSON.parse(localStorage.getItem('exchangeRates'));
 
-    // Check if rates exist in Local Storage
     if (!usdRates) {
         console.error("Ratele de schimb relative la USD nu sunt disponibile în Local Storage.");
         return null;
     }
 
-    // Get the conversion rate for the "fromCurrency" and "toCurrency"
     const fromRate = usdRates[fromCurrency];
     const toRate = usdRates[toCurrency];
 
-    // // Debugging: Log the rates to verify
-    // console.log("From currency rate:", fromRate);
-    // console.log("To currency rate:", toRate);
-
-    // Ensure that both rates are available
     if (!fromRate) {
         console.error(`Rata pentru ${fromCurrency} nu este disponibilă.`);
         return null;
@@ -138,23 +142,23 @@ function convertUsingLocalStorage(fromCurrency, toCurrency, amount) {
         return null;
     }
 
-    // Perform the conversion using USD as an intermediary
     const result = ((amount / fromRate) * toRate).toFixed(2);
 
     return result;
 }
 
-
 async function populateCurrencyDropdowns() {
     try {
-        const response = await fetch(`${apiUrl}RON`);
+        const response = await fetch('https://v6.exchangerate-api.com/v6/9394ba5026a86ce9357d1a8f/codes/')
         if (!response.ok) {
             throw new Error("NO NETWORK RESPONSE");
         }
         const data = await response.json();
 
         if (data.result === "success") {
-            const currencies = Object.keys(data.conversion_rates);
+
+            const currencies = data.supported_codes;
+            console.log(currencies[1][1]);
 
             const fromCurrencyDropdown = document.getElementById('fromCurrency');
             const toCurrencyDropdown = document.getElementById('toCurrency');
@@ -164,13 +168,13 @@ async function populateCurrencyDropdowns() {
 
             currencies.forEach(currency => {
                 const optionFrom = document.createElement('option');
-                optionFrom.value = currency;
-                optionFrom.text = currency;
+                optionFrom.value = currency[1];
+                optionFrom.text = currency[1];
                 fromCurrencyDropdown.appendChild(optionFrom);
 
                 const optionTo = document.createElement('option');
-                optionTo.value = currency;
-                optionTo.text = currency;
+                optionTo.value = currency[1];
+                optionTo.text = currency[1];
                 toCurrencyDropdown.appendChild(optionTo);
             });
         } else {
@@ -179,7 +183,10 @@ async function populateCurrencyDropdowns() {
         }
     } catch (error) {
         console.error("ERROR AT FETCH", error);
-        alert("FAILED FETCH");
+        showFetchErrorMessage();
+        setTimeout(() => {
+            hideFetchErrorMessage();
+        }, 2000);
     }
 }
 
@@ -253,14 +260,23 @@ window.onload = function() {
 function resetFields() {
     document.getElementById('amount').value = "Enter the amount to convert";
     document.getElementById('result').innerHTML = "RESULT:"
-    document.getElementById('fromCurrency').value = 'RON';
-    document.getElementById('toCurrency').value = 'RON';
+    document.getElementById('fromCurrency').value = 'Romanian Leu';
+    document.getElementById('toCurrency').value = 'Romanian Leu';
 }
 
+function showCopyErrorMessage() {
+    document.getElementById('errorAtCopy').style.display = 'block';
+}
+function hideCopyErrorMessage() {
+    document.getElementById('errorAtCopy').style.display = 'none';
+}
 function copyResult() {
     const textToCopy = document.getElementById('result').innerText;
-    if (!textToCopy || textToCopy === 'RESULT: ') {
-        alert("No result to copy");
+    if (!textToCopy || textToCopy === 'RESULT:') {
+        showCopyErrorMessage();
+        setTimeout(() => {
+            hideCopyErrorMessage();
+        }, 2000);
         return;
     }
 
@@ -275,7 +291,17 @@ function copyResult() {
     document.execCommand('copy');
 
     document.body.removeChild(tempTextArea);
-    alert("Result copied to clipboard!");
+    showCopySuccessMessage();
+    setTimeout(() => {
+        hideCopySuccessMessage();
+    }, 2000);
+}
+
+function showCopySuccessMessage() {
+    document.getElementById('successAtCopy').style.display = 'block';
+}
+function hideCopySuccessMessage() {
+    document.getElementById('successAtCopy').style.display = 'none';
 }
 
 function swapCurrencies() {

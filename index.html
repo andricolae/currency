@@ -10,6 +10,7 @@
 
 <body>
     <h1>CURRENCY CONVERTOR</h1>
+    <p id="errorAtFetch" style="color: red; display: none;">⚠ API Fetch not successful!</p>
 
     <div class="container">
         <label for="amount">AMOUNT:</label>
@@ -29,6 +30,9 @@
         <button onclick="resetFields()">RESET</button>
 
         <h2 id="result">RESULT: </h2>
+        <p id="errorAtCopy" style="color: red; display: none;">⚠ NOTHING TO COPY</p>
+        <p id="successAtCopy" style="color: green; display: none;">Copied to clipboard!</p>
+
         <button onclick="copyResult()">COPY RESULT</button>
 
     </div>
@@ -38,7 +42,6 @@
 </html>
 
 <!--
-    2. modificat stil alerte
-    3. display currency la denumirea completa
-    4. CSS -> responsive pe mobil
-    -->
+    1. display currency la denumirea completa
+    2. CSS -> responsive pe mobil
+-->
