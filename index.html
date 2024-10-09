@@ -9,11 +9,12 @@
 </head>
 
 <body>
-    <h1>SHOW ME THE MONEY</h1>
+    <h1>CURRENCY CONVERTOR</h1>
 
     <div class="container">
         <label for="amount">AMOUNT:</label>
         <input type="number" id="amount" placeholder="Enter the amount to convert">
+        <p id="errorAmount" style="color: red; display: none;">⚠ VALUE TOO LOW! Only positive numbers!</p>
 
         <label for="fromCurrency">From:</label>
         <select id="fromCurrency"></select>
@@ -21,11 +22,23 @@
         <label for="toCurrency">To:</label>
         <select id="toCurrency"></select>
 
-        <button onclick="convertCurrency()">CONVERT</button>
+        <button onclick="swapCurrencies()">SWAP CURRENCIES</button>
+
+        <button id="convert" onclick="convertCurrency()">CONVERT</button>
+
+        <button onclick="resetFields()">RESET</button>
 
         <h2 id="result">RESULT: </h2>
+        <button onclick="copyResult()">COPY RESULT</button>
+
     </div>
 
     <script src="index.js"></script>
 </body>
 </html>
+
+<!--
+    2. modificat stil alerte
+    3. display currency la denumirea completa
+    4. CSS -> responsive pe mobil
+    -->
