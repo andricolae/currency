@@ -1,7 +1,5 @@
-/* Use Google Font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-/* Base styling */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #f4f7f9;
@@ -11,7 +9,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Container for the app */
 .container {
     background-color: #ffffff;
     padding: 20px;
@@ -24,7 +21,6 @@ body {
     gap: 15px;
 }
 
-/* Headline */
 h1 {
     font-size: 2rem;
     font-weight: 600;
@@ -32,7 +28,6 @@ h1 {
     color: #0056b3;
 }
 
-/* Form elements styling */
 input, select, button {
     padding: 10px;
     font-size: 1rem;
@@ -48,7 +43,6 @@ input:focus, select:focus, button:focus {
     outline: none;
 }
 
-/* Button styling */
 button {
     background-color: #0056b3;
     color: white;
@@ -61,7 +55,6 @@ button:hover {
     background-color: #004499;
 }
 
-/* Responsive behavior */
 @media (max-width: 600px) {
     .container {
         padding: 15px;
@@ -78,14 +71,12 @@ button:hover {
     }
 }
 
-/* Error messages */
 #errorAtFetch, #errorAmount, #errorAtCopy, #successAtCopy {
-    font-size: 0.9rem;
+    font-size: 1.2rem;
 }
 
-/* Result display */
 #result {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 500;
     color: #28a745;
     text-align: center;
