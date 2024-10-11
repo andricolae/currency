@@ -164,49 +164,47 @@ async function fetchAllCurrencies() {
     }
     return data;
 }
+
 async function populateCurrencyDropdowns() {
-    // try {
-    //     const response = await fetch('https://v6.exchangerate-api.com/v6/9394ba5026a86ce9357d1a8f/codes/')
-    //     if (!response.ok) {
-    //         throw new Error("NO NETWORK RESPONSE");
-    //     }
-    //     const data = await response.json();
+        try {
+            const response = await fetch(`${apiUrl}RON`);
+            if (!response.ok) {
+                throw new Error("NO NETWORK RESPONSE");
+            }
+            const data = await response.json();
 
-    //     if (data.result === "success") {
+            if (data.result === "success") {
+                const currencies = Object.keys(data.conversion_rates);
 
-            const data = fetchAllCurrencies();
+                const fromCurrencyDropdown = document.getElementById('fromCurrency');
+                const toCurrencyDropdown = document.getElementById('toCurrency');
 
-            const currencies = data.supported_codes;
+                fromCurrencyDropdown.innerHTML = '';
+                toCurrencyDropdown.innerHTML = '';
 
-            const fromCurrencyDropdown = document.getElementById('fromCurrency');
-            const toCurrencyDropdown = document.getElementById('toCurrency');
+                currencies.forEach(currency => {
+                    const optionFrom = document.createElement('option');
+                    optionFrom.value = currency;
+                    optionFrom.text = currency;
+                    fromCurrencyDropdown.appendChild(optionFrom);
 
-            fromCurrencyDropdown.innerHTML = '';
-            toCurrencyDropdown.innerHTML = '';
-
-            currencies.forEach(currency => {
-                const optionFrom = document.createElement('option');
-                optionFrom.value = currency[1];
-                optionFrom.text = currency[1];
-                fromCurrencyDropdown.appendChild(optionFrom);
-
-                const optionTo = document.createElement('option');
-                optionTo.value = currency[1];
-                optionTo.text = currency[1];
-                toCurrencyDropdown.appendChild(optionTo);
-            });
-        } //else {
-            //console.error("ERROR AT FETCH", data);
-            //throw new Error("FAILED FETCH");
-        //}
-    // } catch (error) {
-    //     console.error("ERROR AT FETCH", error);
-    //     showFetchErrorMessage();
-    //     setTimeout(() => {
-    //         hideFetchErrorMessage();
-    //     }, 2000);
-    // }
-//}
+                    const optionTo = document.createElement('option');
+                    optionTo.value = currency;
+                    optionTo.text = currency;
+                    toCurrencyDropdown.appendChild(optionTo);
+                });
+            } else {
+                console.error("ERROR AT FETCH", data);
+                throw new Error("FAILED FETCH");
+            }
+        } catch (error) {
+            console.error("ERROR AT FETCH", error);
+            showFetchErrorMessage();
+            setTimeout(() => {
+                hideFetchErrorMessage();
+            }, 2000);
+        }
+}
 
 async function fetchAndStoreExchangeRates() {
     // try {
