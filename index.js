@@ -250,6 +250,7 @@ async function fetchAndStoreExchangeRates() {
 
         if (data.result === 'success') {
             localStorage.setItem('exchangeRates', JSON.stringify(data.conversion_rates));
+            localStorage.setItem('lastUpdated', Date.now());
 
             console.log("Cursurile valutare au fost salvate în Local Storage.");
         } else {
@@ -262,14 +263,13 @@ async function fetchAndStoreExchangeRates() {
 
 window.onload = function() {
     populateCurrencyDropdowns();
-    fetchAndStoreExchangeRates();
+    //fetchAndStoreExchangeRates();
 
     const oneDay = 24 * 60 * 60 * 1000;
     const lastUpdated = localStorage.getItem('lastUpdated');
 
     if (!lastUpdated || (Date.now() - lastUpdated) > oneDay) {
         fetchAndStoreExchangeRates();
-        localStorage.setItem('lastUpdated', Date.now());
     }
 }
 
