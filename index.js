@@ -289,7 +289,7 @@ function hideCopyErrorMessage() {
 function copyResult() {
     console.log("intru in functia de copy");
     const textToCopy = document.getElementById('result').innerText;
-    if (!textToCopy || textToCopy === 'RESULT: ') {
+    if (!textToCopy || textToCopy === 'RESULT:') {
         showCopyErrorMessage();
         setTimeout(() => {
             hideCopyErrorMessage();
