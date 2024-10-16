@@ -1,9 +1,13 @@
 const apiKey = '9394ba5026a86ce9357d1a8f';
-const apiUrl = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/`;
+const apiUrlLatest = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/`;
+const apiUrlCodes = 'https://v6.exchangerate-api.com/v6/${apiKey}/codes/';
+
+let exchangeRates = {};
 
 /********************
     ERROR HANDLING
  ********************/
+
 function showError(message) {
     const errorMessage = document.getElementById('errorMessage');
     errorMessage.innerText = message;
@@ -20,121 +24,84 @@ function disableButton(disable) {
 /*****************
     AT APP LOAD
  *****************/
+
 window.onload = function() {
-    populateCurrencyDropdowns();
+    const lastFetch = parseInt(localStorage.getItem('lastFetch'), 10);
+    const isFreshData = Date.now() - lastFetch < 30 * 24 * 60 * 60 * 1000;
 
-    const oneDay = 24 * 60 * 60 * 1000;
-    const lastUpdated = localStorage.getItem('lastUpdated');
-
-    if (!lastUpdated || (Date.now() - lastUpdated) > oneDay) {
-        fetchAndStoreExchangeRates();
+    if (navigator.onLine) {
+        fetchCurrencyData();
+    } else {
+        showError("You are offline. Unable to fetch currency data.");
+        loadCachedData();
     }
 }
 
 /*****************
     FETCH DATA
  *****************/
-async function fetchExchangeRate(fromCurrency, toCurrency) {
-    let result = [];
-    try {
-        const response = await fetch(`${apiUrl}${fromCurrency}`);
-        const data = await response.json();
-        if (data.result === "success") {
-            result.push(data.conversion_rates[toCurrency]);
-            result.push(data.time_last_update_utc);
-            return result;
-            //return data.conversion_rates[toCurrency];
-        } else {
-            throw new Error("ERROR AT FETCH");
-        }
-    } catch (error) {
-        console.error(error);
-        return null;
-    }
-}
 
-async function fetchAllCurrencies() {
-    try {
-        const response = await fetch('https://v6.exchangerate-api.com/v6/9394ba5026a86ce9357d1a8f/codes/')
-        if (!response.ok) {
-            showError("⚠ API Fetch not successful!");
-            throw new Error("NO NETWORK RESPONSE");
-        }
-        const data = await response.json();
-    } catch (error) {
-        showError("⚠ Failed to fetch currency data.");
-    }
-    return data;
-}
-
-async function populateCurrencyDropdowns() {
-        try {
-            const response = await fetch(`${apiUrl}RON`);
+function fetchCurrencyData() {
+    fetch (`${apiUrlLatest}RON`)
+        .then(response => {
             if (!response.ok) {
-                showError("⚠ Failed to fetch currency data.");
-                throw new Error("NO NETWORK RESPONSE");
+                throw new Error('Network response was not ok');
             }
-            const data = await response.json();
-
-            if (data.result === "success") {
-                const currencies = Object.keys(data.conversion_rates);
-
-                const fromCurrencyDropdown = document.getElementById('fromCurrency');
-                const toCurrencyDropdown = document.getElementById('toCurrency');
-
-                fromCurrencyDropdown.innerHTML = '';
-                toCurrencyDropdown.innerHTML = '';
-
-                currencies.forEach(currency => {
-                    const optionFrom = document.createElement('option');
-                    optionFrom.value = currency;
-                    optionFrom.text = currency;
-                    fromCurrencyDropdown.appendChild(optionFrom);
-
-                    const optionTo = document.createElement('option');
-                    optionTo.value = currency;
-                    optionTo.text = currency;
-                    toCurrencyDropdown.appendChild(optionTo);
-                });
+            return response.json();
+        })
+        .then(data => {
+            console.log("Fetched data:", data);
+            if (data && data.conversion_rates) {
+                exchangeRates = data.conversion_rates;
+                console.log("Exchange Rates: " , exchangeRates);
+                localStorage.setItem('exchangeRates', JSON.stringify(exchangeRates));
+                localStorage.setItem('lastFetch', Date.now().toString());
+                populateCurrencyOptions(Object.keys(exchangeRates));
             } else {
-                showError("⚠ Failed to fetch currency data.");
-                throw new Error("FAILED FETCH");
+                showError("Unexpected API response format.");
             }
-        } catch (error) {
-            showError("⚠ Failed to fetch currency data.");
-            showFetchErrorMessage();
-        }
+        })
+        .catch(error => {
+            showError("Failed to fetch data. Using cached data if available.");
+            console.error("Fetch error:", error);
+            loadCachedData();
+        });
 }
 
-async function fetchAndStoreExchangeRates() {
-    try {
-        const savedRates = localStorage.getItem('exchangeRates');
-        if (savedRates) {
-            console.log("Cursurile valutare au fost deja salvate în Local Storage.");
-            return;
-        }
-
-        const response = await fetch(`${apiUrl}USD`);
-        const data = await response.json();
-
-        if (data.result === 'success') {
-            localStorage.setItem('exchangeRates', JSON.stringify(data.conversion_rates));
-            localStorage.setItem('lastUpdated', Date.now());
-
-            console.log("Cursurile valutare au fost salvate în Local Storage.");
-        } else {
-            console.error("Eroare la obținerea cursurilor valutare");
-            showError("⚠ Failed to fetch currency data.");
-        }
-    } catch (error) {
-        console.error("Eroare la solicitarea API: ", error);
-        showError("⚠ Failed to fetch currency data.");
+function loadCachedData() {
+    const cachedRates = JSON.parse(localStorage.getItem('exchangeRates'));
+    if (cachedRates) {
+        exchangeRates = cachedRates;
+        populateCurrencyOptions(Object.keys(exchangeRates));
+    } else {
+        showError("No cached data available. Please connect to the internet.");
     }
+}
+
+function populateCurrencyOptions(currencies) {
+    const fromCurrency = document.getElementById('fromCurrency');
+    const toCurrency = document.getElementById('toCurrency');
+    fromCurrency.innerHTML = '';
+    toCurrency.innerHTML = '';
+
+    currencies.forEach(currency => {
+        const option1 = document.createElement('option');
+        option1.value = currency;
+        option1.text = currency;
+
+        const option2 = document.createElement('option');
+        option2.value = currency;
+        option2.text = currency;
+
+        fromCurrency.appendChild(option1);
+        toCurrency.appendChild(option2);
+    });
 }
 
 /*********************
     DATA VALIDATION
  *********************/
+
 document.getElementById('amount').addEventListener('keypress', function(event) {
     const charCode = event.key.charCodeAt(0);
     const inputValue = this.value;
@@ -168,87 +135,28 @@ document.getElementById('amount').addEventListener('keypress', function(event) {
 /*****************
     CONVERSIONS
  *****************/
-async function convertCurrency() {
-    const amount = document.getElementById('amount').value;
+
+function convertCurrency() {
+    const amount = parseFloat(document.getElementById('amount').value);
     const fromCurrency = document.getElementById('fromCurrency').value;
     const toCurrency = document.getElementById('toCurrency').value;
 
-    if (amount == 0){
-        showError("⚠ VALUE TOO LOW! Only positive numbers!");
-        return;
+    if (amount > 0 && exchangeRates[fromCurrency] && exchangeRates[toCurrency]) {
+        const convertedAmount = (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency];
+        console.log(convertedAmount);
+        document.getElementById('result').innerText = `RESULT: ${convertedAmount.toFixed(2)} ${toCurrency}`;
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('copy').style.display = 'block';
+
     } else {
-        hideError();
+        showError("Invalid amount or currencies.");
     }
-
-    if (!amount || !fromCurrency || !toCurrency) {
-        showError("⚠ VALUE TOO LOW! Only positive numbers!");
-        return;
-    } else {
-        hideError();
-    }
-
-    if (navigator.onLine) {
-        const result = await fetchExchangeRate(fromCurrency, toCurrency);
-        const exchangeRate = result[0];
-        const dateOfCurrency = result[1];
-        console.log(dateOfCurrency);
-        const sanitizedDateOfCurrency = dateOfCurrency.substr(0, dateOfCurrency.length-15);
-        console.log(sanitizedDateOfCurrency);
-        if (exchangeRate) {
-            const result = (amount * exchangeRate).toFixed(2);
-            document.getElementById('result').innerText = `RESULT: ${result} ${toCurrency} (Exchange rate: 1 ${fromCurrency} = ${exchangeRate} ${toCurrency} on ${sanitizedDateOfCurrency})`;
-            document.getElementById('result').style.display = 'block';
-            document.getElementById('copy').style.display = 'block';
-        } else {
-            showError("⚠ Failed to fetch currency data.");
-        }
-    }
-    else {
-        console.log("Exchange rates in Local Storage:", localStorage.getItem('exchangeRates'));
-
-        const usdRates = JSON.parse(localStorage.getItem('exchangeRates'));
-        console.log("Rates:", usdRates);
-
-        const result = convertUsingLocalStorage(fromCurrency, toCurrency, amount);
-
-        console.log(`Conversie finală: ${amount} ${fromCurrency} = ${result} ${toCurrency}`);
-
-        const resultElement = document.getElementById('result');
-        console.log(resultElement);
-
-        document.getElementById('result').innerText = `RESULT: ${result} ${toCurrency}`;
-    }
-}
-
-function convertUsingLocalStorage(fromCurrency, toCurrency, amount) {
-    const usdRates = JSON.parse(localStorage.getItem('exchangeRates'));
-
-    if (!usdRates) {
-        console.error("Ratele de schimb relative la USD nu sunt disponibile în Local Storage.");
-        return null;
-    }
-
-    const fromRate = usdRates[fromCurrency];
-    const toRate = usdRates[toCurrency];
-
-    if (!fromRate) {
-        console.error(`Rata pentru ${fromCurrency} nu este disponibilă.`);
-        return null;
-    }
-
-    if (!toRate) {
-        console.error(`Rata pentru ${toCurrency} nu este disponibilă.`);
-        return null;
-    }
-
-    const result = ((amount / fromRate) * toRate).toFixed(2);
-
-    return result;
 }
 
 /*****************
     COPY RESULT
  *****************/
+
 function copyResult() {
     const textToCopy = document.getElementById('result').innerText;
     if (!textToCopy || textToCopy === '') {
@@ -279,6 +187,7 @@ function copyResult() {
 /*****************
     SWAP CURRENCY
  *****************/
+
 function swapCurrencies() {
     const fromCurrencyDropdown = document.getElementById('fromCurrency');
     const toCurrencyDropdown = document.getElementById('toCurrency');
@@ -291,6 +200,7 @@ function swapCurrencies() {
 /*****************
     RESET FIELDS
  *****************/
+
 function resetFields() {
     document.getElementById('amount').value = "Enter the amount to convert";
     document.getElementById('result').innerHTML = "RESULT:"
