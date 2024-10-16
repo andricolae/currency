@@ -93,6 +93,18 @@ input:focus, select:focus, button:focus {
     text-align: center;
 }
 
+.conversion-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+}
+
 .input-currency-row {
     display: flex;
     justify-content: space-between;
@@ -128,6 +140,14 @@ input:focus, select:focus, button:focus {
     display: none;
 }
 
+#amount, #result {
+    flex: 2;
+}
+
+#fromCurrency, #toCurrency {
+    flex: 1;
+}
+
 /***************
     MEDIA
 ****************/
@@ -158,24 +178,4 @@ input:focus, select:focus, button:focus {
     h1 {
         font-size: 1.5rem;
     }
-}
-
-.conversion-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-}
-
-.row {
-    display: flex;
-    gap: 10px;
-}
-
-#amount, #result {
-    flex: 2;
-}
-
-#fromCurrency, #toCurrency {
-    flex: 1;
 }

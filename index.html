@@ -15,19 +15,18 @@
 
         <div class="conversion-container">
             <div class="row">
-                <input type="number" id="amount" placeholder="Enter amount">
+                <input type="number" id="amount" placeholder="Enter amount to convert">
                 <select id="fromCurrency"></select>
             </div>
 
             <div class="row">
-                <input type="text" id="result" placeholder="Result" readonly>
+                <input type="text" id="result" placeholder="Here come's the answer" readonly>
                 <select id="toCurrency"></select>
             </div>
         </div>
 
         <div class="action-section">
             <button onclick="swapCurrencies()">SWAP CURRENCIES</button>
-            <button id="convert" onclick="convertCurrency()">CONVERT</button>
             <button onclick="resetFields()">RESET</button>
 
             <div class="error-message" id="errorMessage"></div>

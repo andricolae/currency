@@ -3,6 +3,14 @@ const apiUrlLatest = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/`;
 const apiUrlCodes = 'https://v6.exchangerate-api.com/v6/${apiKey}/codes/';
 
 let exchangeRates = {};
+const amountInput = document.getElementById('amount');
+const fromCurrencySelect = document.getElementById('fromCurrency');
+const toCurrencySelect = document.getElementById('toCurrency');
+const resultInput = document.getElementById('result');
+
+amountInput.addEventListener('input', convertCurrency);
+fromCurrencySelect.addEventListener('change', convertCurrency);
+toCurrencySelect.addEventListener('change', convertCurrency);
 
 /********************
     ERROR HANDLING
@@ -16,9 +24,6 @@ function showError(message) {
 function hideError() {
     const errorMessage = document.getElementById('errorMessage');
     errorMessage.style.display = 'none';
-}
-function disableButton(disable) {
-    document.getElementById('convert').disabled = disable;
 }
 
 /*****************
@@ -135,16 +140,17 @@ document.getElementById('amount').addEventListener('keypress', function(event) {
  *****************/
 
 function convertCurrency() {
-    const amount = parseFloat(document.getElementById('amount').value);
-    const fromCurrency = document.getElementById('fromCurrency').value;
-    const toCurrency = document.getElementById('toCurrency').value;
-    const resultInput = document.getElementById("result");
+    const amount = parseFloat(amountInput.value);
+    const fromCurrency = fromCurrencySelect.value;
+    const toCurrency = toCurrencySelect.value;
 
     if (amount > 0 && exchangeRates[fromCurrency] && exchangeRates[toCurrency]) {
         const convertedAmount = (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency];
         resultInput.value = convertedAmount.toFixed(2);
         document.getElementById('copy').style.display = 'block';
-
+    } else if (amount == 0 || isNaN(amount)){
+        resultInput.value = 0;
+        hideError();
     } else {
         showError("Invalid amount or currencies.");
     }
@@ -157,15 +163,16 @@ function convertCurrency() {
     function copyResult() {
         const resultInput = document.getElementById('result');
         const from = document.getElementById('fromCurrency');
-        const textToCopy = resultInput.value + " " + from.value;
+        let textToCopy = resultInput.value;
 
-        if (!textToCopy || textToCopy === '') {
+        if (!textToCopy || textToCopy === '' || textToCopy === '0') {
             showError("⚠ NOTHING TO COPY");
             setTimeout(() => {
                 hideError();
             }, 2000);
             return;
         }
+        textToCopy = resultInput.value + " " + from.value;
 
         const tempTextArea = document.createElement('textarea');
         tempTextArea.value = textToCopy.trim();
@@ -192,6 +199,8 @@ function swapCurrencies() {
     const temp = fromCurrencyDropdown.value;
     fromCurrencyDropdown.value = toCurrencyDropdown.value;
     toCurrencyDropdown.value = temp;
+
+    convertCurrency();
 }
 
 /*****************
@@ -199,7 +208,7 @@ function swapCurrencies() {
  *****************/
 
 function resetFields() {
-    document.getElementById('amount').value = "Enter the amount to convert";
+    document.getElementById('amount').value = "Enter amount to convert";
     document.getElementById('result').value = "Here come's the answer";
     document.getElementById('fromCurrency').value = 'RON';
     document.getElementById('toCurrency').value = 'RON';
