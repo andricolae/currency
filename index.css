@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
+/***********************
+    ELEMENTE HTML
+************************/
+
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #f4f7f9;
@@ -9,23 +13,27 @@ body {
     box-sizing: border-box;
 }
 
-.container {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
 h1 {
     font-size: 2rem;
     font-weight: 600;
     text-align: center;
     color: #0056b3;
+}
+
+button {
+    background-color: #0056b3;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #004499;
 }
 
 input, select, button {
@@ -43,60 +51,25 @@ input:focus, select:focus, button:focus {
     outline: none;
 }
 
-button {
-    background-color: #0056b3;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
+/****************
+    CLASE
+*****************/
+
+.container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-button:hover {
-    background-color: #004499;
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 15px;
-        margin: 0 10px;
-    }
-
-    input, select, button {
-        font-size: 0.9rem;
-        padding: 8px;
-    }
-
-    h1 {
-        font-size: 1.5rem;
-    }
-}
-
-#result {
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: #28a745;
-    text-align: center;
-    margin-top: 10px;
-    display: none;
-}
-
-#copy {
-    display: none;
-}
-
-.error-message {
-    color: lightcoral;
-    font-size: 1.2rem;
-    display: none;
-    margin-top: 10px;
-    text-align: center;
-}
-
-.input-section,
-.currency-selection,
-.action-section,
-.result-section {
-    margin-bottom: 15px;
+.input-section input,
+.currency-selection select {
+    width: 100%;
 }
 
 .action-section {
@@ -118,4 +91,79 @@ button:hover {
 
 .input-section input {
     text-align: center;
+}
+
+.input-currency-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    align-items: center;
+}
+
+.input-section {
+    flex: 0 0 50%;
+}
+
+.currency-selection {
+    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.error-message {
+    color: lightcoral;
+    font-size: 1.2rem;
+    display: none;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/*****************
+    ID-URI
+******************/
+
+#result {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #28a745;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+}
+
+#copy {
+    display: none;
+}
+
+/***************
+    MEDIA
+****************/
+
+@media (max-width: 768px) {
+    .input-currency-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .input-section,
+    .currency-selection {
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+        margin: 0 10px;
+    }
+
+    input, select, button {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
 }

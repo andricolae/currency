@@ -250,9 +250,8 @@ function convertUsingLocalStorage(fromCurrency, toCurrency, amount) {
     COPY RESULT
  *****************/
 function copyResult() {
-    console.log("intru in functia de copy");
     const textToCopy = document.getElementById('result').innerText;
-    if (!textToCopy || textToCopy === 'RESULT:') {
+    if (!textToCopy || textToCopy === '') {
         showError("⚠ NOTHING TO COPY");
         setTimeout(() => {
             hideError();
