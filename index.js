@@ -50,10 +50,8 @@ function fetchCurrencyData() {
             return response.json();
         })
         .then(data => {
-            console.log("Fetched data:", data);
             if (data && data.conversion_rates) {
                 exchangeRates = data.conversion_rates;
-                console.log("Exchange Rates: " , exchangeRates);
                 localStorage.setItem('exchangeRates', JSON.stringify(exchangeRates));
                 localStorage.setItem('lastFetch', Date.now().toString());
                 populateCurrencyOptions(Object.keys(exchangeRates));
@@ -140,12 +138,11 @@ function convertCurrency() {
     const amount = parseFloat(document.getElementById('amount').value);
     const fromCurrency = document.getElementById('fromCurrency').value;
     const toCurrency = document.getElementById('toCurrency').value;
+    const resultInput = document.getElementById("result");
 
     if (amount > 0 && exchangeRates[fromCurrency] && exchangeRates[toCurrency]) {
         const convertedAmount = (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency];
-        console.log(convertedAmount);
-        document.getElementById('result').innerText = `RESULT: ${convertedAmount.toFixed(2)} ${toCurrency}`;
-        document.getElementById('result').style.display = 'block';
+        resultInput.value = convertedAmount.toFixed(2);
         document.getElementById('copy').style.display = 'block';
 
     } else {
@@ -157,32 +154,32 @@ function convertCurrency() {
     COPY RESULT
  *****************/
 
-function copyResult() {
-    const textToCopy = document.getElementById('result').innerText;
-    if (!textToCopy || textToCopy === '') {
-        showError("⚠ NOTHING TO COPY");
+    function copyResult() {
+        const resultInput = document.getElementById('result');
+        const from = document.getElementById('fromCurrency');
+        const textToCopy = resultInput.value + " " + from.value;
+
+        if (!textToCopy || textToCopy === '') {
+            showError("⚠ NOTHING TO COPY");
+            setTimeout(() => {
+                hideError();
+            }, 2000);
+            return;
+        }
+
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = textToCopy.trim();
+
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+
+        showError("Copied to clipboard!");
         setTimeout(() => {
             hideError();
         }, 2000);
-        return;
     }
-
-    let sanitezedTextToCopy = textToCopy.replace("RESULT: ", "").trim();
-
-    const tempTextArea = document.createElement('textarea');
-    tempTextArea.value = sanitezedTextToCopy;
-
-    document.body.appendChild(tempTextArea);
-
-    tempTextArea.select();
-    document.execCommand('copy');
-
-    document.body.removeChild(tempTextArea);
-    showError("Copied to clipboard!");
-    setTimeout(() => {
-        hideError();
-    }, 2000);
-}
 
 /*****************
     SWAP CURRENCY
@@ -203,9 +200,8 @@ function swapCurrencies() {
 
 function resetFields() {
     document.getElementById('amount').value = "Enter the amount to convert";
-    document.getElementById('result').innerHTML = "RESULT:"
-    document.getElementById('fromCurrency').value = 'Romanian Leu';
-    document.getElementById('toCurrency').value = 'Romanian Leu';
-    document.getElementById('result').style.display = 'none';
+    document.getElementById('result').value = "Here come's the answer";
+    document.getElementById('fromCurrency').value = 'RON';
+    document.getElementById('toCurrency').value = 'RON';
     document.getElementById('copy').style.display = 'none';
 }

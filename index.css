@@ -124,15 +124,6 @@ input:focus, select:focus, button:focus {
     ID-URI
 ******************/
 
-#result {
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: #28a745;
-    text-align: center;
-    margin-top: 10px;
-    display: none;
-}
-
 #copy {
     display: none;
 }
@@ -167,4 +158,24 @@ input:focus, select:focus, button:focus {
     h1 {
         font-size: 1.5rem;
     }
+}
+
+.conversion-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+}
+
+#amount, #result {
+    flex: 2;
+}
+
+#fromCurrency, #toCurrency {
+    flex: 1;
 }
