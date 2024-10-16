@@ -71,14 +71,51 @@ button:hover {
     }
 }
 
-#errorAtFetch, #errorAmount, #errorAtCopy, #successAtCopy {
-    font-size: 1.2rem;
-}
-
 #result {
     font-size: 1.5rem;
     font-weight: 500;
     color: #28a745;
     text-align: center;
     margin-top: 10px;
+    display: none;
+}
+
+#copy {
+    display: none;
+}
+
+.error-message {
+    color: lightcoral;
+    font-size: 1.2rem;
+    display: none;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.input-section,
+.currency-selection,
+.action-section,
+.result-section {
+    margin-bottom: 15px;
+}
+
+.action-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.result-section {
+    text-align: center;
+}
+
+.currency-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-section input {
+    text-align: center;
 }

@@ -10,37 +10,40 @@
 
 <body>
     <h1>CURRENCY CONVERTOR</h1>
-    <p id="errorAtFetch" style="color: red; display: none;">⚠ API Fetch not successful!</p>
 
     <div class="container">
-        <label for="amount">AMOUNT:</label>
-        <input type="number" id="amount" placeholder="Enter the amount to convert">
-        <p id="errorAmount" style="color: red; display: none;">⚠ VALUE TOO LOW! Only positive numbers!</p>
+        <div class="input-section">
+            <label for="amount">AMOUNT:</label>
+            <input type="number" id="amount" placeholder="Enter the amount to convert">
+        </div>
 
-        <label for="fromCurrency">From:</label>
-        <select id="fromCurrency"></select>
+        <div class="currency-selection">
+            <label for="fromCurrency">From:</label>
+            <select id="fromCurrency"></select>
 
-        <label for="toCurrency">To:</label>
-        <select id="toCurrency"></select>
+            <label for="toCurrency">To:</label>
+            <select id="toCurrency"></select>
+        </div>
 
-        <button onclick="swapCurrencies()">SWAP CURRENCIES</button>
+        <div class="action-section">
+            <button onclick="swapCurrencies()">SWAP CURRENCIES</button>
+            <button id="convert" onclick="convertCurrency()">CONVERT</button>
+            <button onclick="resetFields()">RESET</button>
 
-        <button id="convert" onclick="convertCurrency()">CONVERT</button>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
 
-        <button onclick="resetFields()">RESET</button>
-
-        <h2 id="result">RESULT: </h2>
-        <p id="errorAtCopy" style="color: red; display: none;">⚠ NOTHING TO COPY</p>
-        <p id="successAtCopy" style="color: green; display: none;">Copied to clipboard!</p>
-
-        <button onclick="copyResult()">COPY RESULT</button>
-
+        <div class="result-section">
+            <h2 id="result">RESULT: </h2>
+            <button onclick="copyResult()">COPY RESULT</button>
+            <p id="successAtCopy" style="color: green; display: none;">Copied to clipboard!</p>
+        </div>
     </div>
 
     <script src="index.js"></script>
 </body>
 </html>
 
-<!--`
+<!--
     display currency cu denumirea completă
 -->

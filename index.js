@@ -4,32 +4,17 @@ const apiUrl = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/`;
 /********************
     ERROR HANDLING
  ********************/
-function showAmountErrorMessage() {
-    document.getElementById('errorAmount').style.display = 'block';
+function showError(message) {
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.innerText = message;
+    errorMessage.style.display = 'block';
 }
-function hideAmountErrorMessage() {
-    document.getElementById('errorAmount').style.display = 'none';
+function hideError() {
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.style.display = 'none';
 }
 function disableButton(disable) {
     document.getElementById('convert').disabled = disable;
-}
-function showFetchErrorMessage() {
-    document.getElementById('errorAtFetch').style.display = 'block';
-}
-function hideFetchErrorMessage() {
-    document.getElementById('errorAtFetch').style.display = 'none';
-}
-function showCopyErrorMessage() {
-    document.getElementById('errorAtCopy').style.display = 'block';
-}
-function hideCopyErrorMessage() {
-    document.getElementById('errorAtCopy').style.display = 'none';
-}
-function showCopySuccessMessage() {
-    document.getElementById('successAtCopy').style.display = 'block';
-}
-function hideCopySuccessMessage() {
-    document.getElementById('successAtCopy').style.display = 'none';
 }
 
 /*****************
@@ -72,12 +57,12 @@ async function fetchAllCurrencies() {
     try {
         const response = await fetch('https://v6.exchangerate-api.com/v6/9394ba5026a86ce9357d1a8f/codes/')
         if (!response.ok) {
+            showError("⚠ API Fetch not successful!");
             throw new Error("NO NETWORK RESPONSE");
         }
         const data = await response.json();
     } catch (error) {
-        console.error("ERROR AT FETCH", error);
-        showFetchErrorMessage();
+        showError("⚠ Failed to fetch currency data.");
     }
     return data;
 }
@@ -86,6 +71,7 @@ async function populateCurrencyDropdowns() {
         try {
             const response = await fetch(`${apiUrl}RON`);
             if (!response.ok) {
+                showError("⚠ Failed to fetch currency data.");
                 throw new Error("NO NETWORK RESPONSE");
             }
             const data = await response.json();
@@ -111,11 +97,11 @@ async function populateCurrencyDropdowns() {
                     toCurrencyDropdown.appendChild(optionTo);
                 });
             } else {
-                console.error("ERROR AT FETCH", data);
+                showError("⚠ Failed to fetch currency data.");
                 throw new Error("FAILED FETCH");
             }
         } catch (error) {
-            console.error("ERROR AT FETCH", error);
+            showError("⚠ Failed to fetch currency data.");
             showFetchErrorMessage();
         }
 }
@@ -138,9 +124,11 @@ async function fetchAndStoreExchangeRates() {
             console.log("Cursurile valutare au fost salvate în Local Storage.");
         } else {
             console.error("Eroare la obținerea cursurilor valutare");
+            showError("⚠ Failed to fetch currency data.");
         }
     } catch (error) {
         console.error("Eroare la solicitarea API: ", error);
+        showError("⚠ Failed to fetch currency data.");
     }
 }
 
@@ -153,25 +141,25 @@ document.getElementById('amount').addEventListener('keypress', function(event) {
 
     if (!((charCode >= 48 && charCode <= 57) || charCode === 46)) {
         event.preventDefault();
-        showAmountErrorMessage();
+        showError("⚠ VALUE TOO LOW! Only positive numbers!");
         disableButton(true);
     } else {
         if (charCode === 46 && inputValue.includes('.')) {
             event.preventDefault();
-            showAmountErrorMessage();
+            showError("⚠ VALUE TOO LOW! Only positive numbers!");
             disableButton(true);
         } else if (inputValue.includes('.')) {
             const decimalPart = inputValue.split('.')[1];
             if (decimalPart && decimalPart.length >= 2) {
                 event.preventDefault();
-                showAmountErrorMessage();
+                showError("⚠ VALUE TOO LOW! Only positive numbers!");
                 disableButton(true);
             } else {
-                hideAmountErrorMessage();
+                hideError();
                 disableButton(false);
             }
         } else {
-            hideAmountErrorMessage();
+            hideError();
             disableButton(false);
         }
     }
@@ -186,17 +174,17 @@ async function convertCurrency() {
     const toCurrency = document.getElementById('toCurrency').value;
 
     if (amount == 0){
-        showAmountErrorMessage();
+        showError("⚠ VALUE TOO LOW! Only positive numbers!");
         return;
     } else {
-        hideAmountErrorMessage();
+        hideError();
     }
 
     if (!amount || !fromCurrency || !toCurrency) {
-        showAmountErrorMessage();
+        showError("⚠ VALUE TOO LOW! Only positive numbers!");
         return;
     } else {
-        hideAmountErrorMessage();
+        hideError();
     }
 
     if (navigator.onLine) {
@@ -209,8 +197,10 @@ async function convertCurrency() {
         if (exchangeRate) {
             const result = (amount * exchangeRate).toFixed(2);
             document.getElementById('result').innerText = `RESULT: ${result} ${toCurrency} (Exchange rate: 1 ${fromCurrency} = ${exchangeRate} ${toCurrency} on ${sanitizedDateOfCurrency})`;
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('copy').style.display = 'block';
         } else {
-            showFetchErrorMessage();
+            showError("⚠ Failed to fetch currency data.");
         }
     }
     else {
@@ -263,9 +253,9 @@ function copyResult() {
     console.log("intru in functia de copy");
     const textToCopy = document.getElementById('result').innerText;
     if (!textToCopy || textToCopy === 'RESULT:') {
-        showCopyErrorMessage();
+        showError("⚠ NOTHING TO COPY");
         setTimeout(() => {
-            hideCopyErrorMessage();
+            hideError();
         }, 2000);
         return;
     }
@@ -281,9 +271,9 @@ function copyResult() {
     document.execCommand('copy');
 
     document.body.removeChild(tempTextArea);
-    showCopySuccessMessage();
+    showError("Copied to clipboard!");
     setTimeout(() => {
-        hideCopySuccessMessage();
+        hideError();
     }, 2000);
 }
 
@@ -307,4 +297,6 @@ function resetFields() {
     document.getElementById('result').innerHTML = "RESULT:"
     document.getElementById('fromCurrency').value = 'Romanian Leu';
     document.getElementById('toCurrency').value = 'Romanian Leu';
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('copy').style.display = 'none';
 }
