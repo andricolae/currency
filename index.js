@@ -1,8 +1,9 @@
 const apiKey = '9394ba5026a86ce9357d1a8f';
 const apiUrlLatest = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/`;
-const apiUrlCodes = 'https://v6.exchangerate-api.com/v6/${apiKey}/codes/';
+const apiUrlCodes = `https://v6.exchangerate-api.com/v6/${apiKey}/codes/`;
 
 let exchangeRates = {};
+let availableCodes = {};
 const amountInput = document.getElementById('amount');
 const fromCurrencySelect = document.getElementById('fromCurrency');
 const toCurrencySelect = document.getElementById('toCurrency');
@@ -36,9 +37,15 @@ window.onload = function() {
 
     if (navigator.onLine) {
         fetchCurrencyData();
+        fetchFullCurrencyName();
     } else {
-        showError("You are offline. Unable to fetch currency data.");
-        loadCachedData();
+        if (isFreshData) {
+            showError("You are offline. Unable to fetch currency data. Using cached data no older than 30 days");
+            loadCachedData();
+        } else {
+            showError("You are offline. Unable to fetch currency data. Using cached data older than 30 days");
+            loadCachedData();
+        }
     }
 }
 
@@ -59,7 +66,6 @@ function fetchCurrencyData() {
                 exchangeRates = data.conversion_rates;
                 localStorage.setItem('exchangeRates', JSON.stringify(exchangeRates));
                 localStorage.setItem('lastFetch', Date.now().toString());
-                populateCurrencyOptions(Object.keys(exchangeRates));
             } else {
                 showError("Unexpected API response format.");
             }
@@ -101,6 +107,49 @@ function populateCurrencyOptions(currencies) {
     });
 }
 
+function fetchFullCurrencyName() {
+    fetch (`${apiUrlCodes}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                availableCodes = data.supported_codes;
+                populateFullCurrencyName(availableCodes);
+                localStorage.setItem('availableCodes', JSON.stringify(availableCodes));
+            } else {
+                showError("Unexpected API response format.");
+            }
+        })
+        .catch(error => {
+            showError("Failed to fetch data. Using cached data if available.");
+            loadCachedData();
+        });
+}
+
+function populateFullCurrencyName(availableCodes) {
+    const fromCurrency = document.getElementById('fromCurrency');
+    const toCurrency = document.getElementById('toCurrency');
+    fromCurrency.innerHTML = '';
+    toCurrency.innerHTML = '';
+
+    availableCodes.forEach(availableCode => {
+        const option1 = document.createElement('option');
+        option1.value = availableCode[1];
+        option1.text = availableCode[1];
+
+        const option2 = document.createElement('option');
+        option2.value = availableCode[1];
+        option2.text = availableCode[1];
+
+        fromCurrency.appendChild(option1);
+        toCurrency.appendChild(option2);
+    });
+}
+
 /*********************
     DATA VALIDATION
  *********************/
@@ -112,25 +161,20 @@ document.getElementById('amount').addEventListener('keypress', function(event) {
     if (!((charCode >= 48 && charCode <= 57) || charCode === 46)) {
         event.preventDefault();
         showError("⚠ VALUE TOO LOW! Only positive numbers!");
-        disableButton(true);
     } else {
         if (charCode === 46 && inputValue.includes('.')) {
             event.preventDefault();
             showError("⚠ VALUE TOO LOW! Only positive numbers!");
-            disableButton(true);
         } else if (inputValue.includes('.')) {
             const decimalPart = inputValue.split('.')[1];
             if (decimalPart && decimalPart.length >= 2) {
                 event.preventDefault();
                 showError("⚠ VALUE TOO LOW! Only positive numbers!");
-                disableButton(true);
             } else {
                 hideError();
-                disableButton(false);
             }
         } else {
             hideError();
-            disableButton(false);
         }
     }
 });
@@ -143,13 +187,23 @@ function convertCurrency() {
     const amount = parseFloat(amountInput.value);
     const fromCurrency = fromCurrencySelect.value;
     const toCurrency = toCurrencySelect.value;
+    let fromCurrencySanitized;
+    let toCurrencySanitized;
 
-    if (amount > 0 && exchangeRates[fromCurrency] && exchangeRates[toCurrency]) {
-        const convertedAmount = (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency];
+    availableCodes.forEach(availableCode => {
+        if (fromCurrency == availableCode [1]){
+            fromCurrencySanitized = availableCode [0];
+        }
+        if (toCurrency == availableCode [1]){
+            toCurrencySanitized = availableCode [0];
+        }
+    });
+
+    if (amount > 0 && exchangeRates[fromCurrencySanitized] && exchangeRates[toCurrencySanitized]) {
+        const convertedAmount = (amount / exchangeRates[fromCurrencySanitized]) * exchangeRates[toCurrencySanitized];
         resultInput.value = convertedAmount.toFixed(2);
         document.getElementById('copy').style.display = 'block';
     } else if (amount == 0 || isNaN(amount)){
-        resultInput.value = 0;
         hideError();
     } else {
         showError("Invalid amount or currencies.");
@@ -210,7 +264,7 @@ function swapCurrencies() {
 function resetFields() {
     document.getElementById('amount').value = "Enter amount to convert";
     document.getElementById('result').value = "Here come's the answer";
-    document.getElementById('fromCurrency').value = 'RON';
-    document.getElementById('toCurrency').value = 'RON';
+    document.getElementById('fromCurrency').value = 'Romanian Leu';
+    document.getElementById('toCurrency').value = 'Romanian Leu';
     document.getElementById('copy').style.display = 'none';
 }
